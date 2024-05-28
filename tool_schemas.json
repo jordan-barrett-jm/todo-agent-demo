@@ -1,0 +1,92 @@
+[
+    {
+        "name": "delete_task",
+        "description": "Deletes a task by its ID.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "task_id": {
+                    "type": "integer",
+                    "description": "The ID of the task to delete."
+                }
+            },
+            "required": ["task_id"]
+        }
+    },
+    {
+        "name": "update_task",
+        "description": "Updates an existing task by its ID with the provided title, description, and completion status.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "task_id": {
+                    "type": "integer",
+                    "description": "The ID of the task to update."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "The new title of the task.",
+                    "nullable": true
+                },
+                "description": {
+                    "type": "string",
+                    "description": "The new description of the task.",
+                    "nullable": true
+                },
+                "completed": {
+                    "type": "boolean",
+                    "description": "The new completion status of the task.",
+                    "nullable": true
+                }
+            },
+            "required": ["task_id", "title", "description", "completed"]
+        }
+    },
+    {
+        "name": "create_task",
+        "description": "Creates a new task with the given title, description, and completion status.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "description": "The title of the task."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "The description of the task.",
+                    "nullable": true
+                },
+                "completed": {
+                    "type": "boolean",
+                    "description": "The completion status of the task.",
+                    "nullable": true
+                }
+            },
+            "required": ["task_id", "title", "description", "completed"]
+        }
+    },
+    {
+        "name": "get_task",
+        "description": "Retrieves a specific task by its ID.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "task_id": {
+                    "type": "integer",
+                    "description": "The ID of the task to retrieve."
+                }
+            },
+            "required": ["task_id"]
+        }
+    },
+    {
+        "name": "get_tasks",
+        "description": "Retrieves a list of all tasks.",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+            "required": []
+        }
+    }     
+]
