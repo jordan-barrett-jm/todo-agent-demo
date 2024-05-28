@@ -39,7 +39,7 @@
                     "nullable": true
                 }
             },
-            "required": ["task_id", "title", "description", "completed"]
+            "required": ["task_id", "title", "completed"]
         }
     },
     {
@@ -63,7 +63,7 @@
                     "nullable": true
                 }
             },
-            "required": ["task_id", "title", "description", "completed"]
+            "required": ["task_id", "title", "completed"]
         }
     },
     {
