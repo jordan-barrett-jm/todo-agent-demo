@@ -46,7 +46,6 @@ async def run_tool(tool_call):
     return str(res), tool_call.id
 
 async def executeToolCalls(tool_calls):
-    print (tool_calls)
     tasks = [run_tool(tc) for tc in tool_calls]
     results = await asyncio.gather(*tasks)
     results_arr = []
@@ -107,13 +106,11 @@ def stream_assistant_response(thread_id, message):
         event_handler=MyEventHandler(),
     ) as stream:
         stream.until_done()
-    print (st.session_state.run_id, st.session_state.tool_calls)
     run_status = get_run_status(st.session_state.run_id, thread_id)
     while run_status in ('queued', 'in_progress', 'requires_action'):
         if run_status == 'requires_action':
             try:
                 tool_outputs = asyncio.run(executeToolCalls(st.session_state.tool_calls))
-                print("SUBMITTING", st.session_state.tool_calls)
                 st.session_state.tool_calls = []
                 with client.beta.threads.runs.submit_tool_outputs_stream(
                         thread_id=thread_id,
@@ -190,7 +187,6 @@ if prompt := st.chat_input("What tasks do I need to get done?"):
         sidebar_output = st.sidebar.empty()
 
         try:
-            print ("thread id", st.session_state)
             # Add a message to the thread
             message = client.beta.threads.messages.create(
                 thread_id=st.session_state.thread_id,
