@@ -60,7 +60,6 @@ async def executeToolCalls(tool_calls):
 class MyEventHandler(AssistantEventHandler):
     @override
     def on_text_created(self, text) -> None:
-        print(f"\nassistant > ", end="", flush=True)
         st.session_state.run_id = self.current_run.id
       
     @override
@@ -68,12 +67,9 @@ class MyEventHandler(AssistantEventHandler):
         st.session_state.run_id = self.current_run.id
         st.session_state.placeholder += delta.value
         message_placeholder.markdown(st.session_state.placeholder + "▌")
-      
-    def on_tool_call_created(self, tool_call):
-        print(f"\nassistant > {tool_call.type}\n", flush=True)
 
     def on_tool_call_done(self, tool_call):
-        print("Added tool call!")
+        print("Added tool call to list...")
         st.session_state.tool_calls.append(tool_call)
         st.session_state.run_id = self.current_run.id
         
@@ -150,7 +146,7 @@ if "run_id" not in st.session_state:
 # Initialize chat history
 if "messages" not in st.session_state:
     with st.chat_message("assistant"):
-        st.markdown("Hello! How can I help you in analyzing the Jamaican car market?")
+        st.markdown("Hello! How can I help you stay on top of your tasks?")
     st.session_state.messages = []
 
 
@@ -198,7 +194,6 @@ if prompt := st.chat_input("What tasks do I need to get done?"):
             message_placeholder.markdown(output)
         except Exception as e:
             print(e)
-            raise
             output = "Failed to process your request. Please try again."
             message_placeholder.error(output)
     st.session_state.messages.append({
