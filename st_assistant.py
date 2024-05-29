@@ -18,38 +18,32 @@ client = OpenAI()
 async def run_tool(tool_call):
     arguments = json.loads(tool_call.function.arguments)
     function_name = tool_call.function.name
-    
-    if function_name == "get_tasks":
-        res = await get_tasks()
-        return str(res), tool_call.id
-    
-    elif function_name == "get_task":
-        task_id = arguments["task_id"]
-        res = await get_task(task_id)
-        return str(res), tool_call.id
-    
-    elif function_name == "create_task":
-        title = arguments["title"]
-        description = arguments.get("description")
-        completed = arguments.get("completed", False)
-        res = await create_task(title, description, completed)
-        return str(res), tool_call.id
-    
-    elif function_name == "update_task":
-        task_id = arguments["task_id"]
-        title = arguments.get("title")
-        description = arguments.get("description")
-        completed = arguments.get("completed", False)
-        res = await update_task(task_id, title, description, completed)
-        return str(res), tool_call.id
-    
-    elif function_name == "delete_task":
-        task_id = arguments["task_id"]
-        res = await delete_task(task_id)
-        return str(res), tool_call.id
-    
-    else:
-        return f"Unknown function name: {function_name}", tool_call.id
+    try:
+        if function_name == "get_tasks":
+            res = await get_tasks()
+        elif function_name == "get_task":
+            task_id = arguments["task_id"]
+            res = await get_task(task_id)
+        elif function_name == "create_task":
+            title = arguments["title"]
+            description = arguments.get("description")
+            completed = arguments.get("completed", False)
+            res = await create_task(title, description, completed)
+        elif function_name == "update_task":
+            task_id = arguments["task_id"]
+            title = arguments.get("title")
+            description = arguments.get("description")
+            completed = arguments.get("completed", False)
+            res = await update_task(task_id, title, description, completed)    
+        elif function_name == "delete_task":
+            task_id = arguments["task_id"]
+            res = await delete_task(task_id)
+        else:
+            raise Exception(f"Unknown function name: {function_name}")
+    except Exception as e:
+        print(e)
+        return str(e), tool_call.id
+    return str(res), tool_call.id
 
 async def executeToolCalls(tool_calls):
     print (tool_calls)
@@ -117,21 +111,21 @@ def stream_assistant_response(thread_id, message):
     run_status = get_run_status(st.session_state.run_id, thread_id)
     while run_status in ('queued', 'in_progress', 'requires_action'):
         if run_status == 'requires_action':
-            tool_outputs = asyncio.run(executeToolCalls(st.session_state.tool_calls))
-            print("----------------")
-            print (tool_outputs)
-            print("----------------")
             try:
+                tool_outputs = asyncio.run(executeToolCalls(st.session_state.tool_calls))
+                print("SUBMITTING", st.session_state.tool_calls)
+                st.session_state.tool_calls = []
                 with client.beta.threads.runs.submit_tool_outputs_stream(
                         thread_id=thread_id,
                         run_id=st.session_state.run_id,
-                        tool_outputs=tool_outputs
+                        tool_outputs=tool_outputs,
+                        event_handler=MyEventHandler()
                     ) as stream:
-                        for text in stream.text_deltas:
-                            st.session_state.placeholder += text
-                            message_placeholder.markdown(st.session_state.placeholder + "▌")
+                        stream.until_done()
             except Exception as e:
                 print (e)
+                #delete tool calls
+                st.session_state.tool_calls = []
                 #cancel the run
                 client.beta.threads.runs.cancel(
                     thread_id=thread_id,
