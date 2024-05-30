@@ -43,6 +43,7 @@ async def run_tool(tool_call):
     except Exception as e:
         print(e)
         return str(e), tool_call.id
+    sidebar_output.text_area("",str(res))
     return str(res), tool_call.id
 
 async def executeToolCalls(tool_calls):
@@ -80,7 +81,7 @@ class MyEventHandler(AssistantEventHandler):
             if delta.function.arguments:
                 print(delta.function.arguments, end="", flush=True)
                 st.session_state.placeholder_sidebar += delta.function.arguments
-                sidebar_placeholder.code(st.session_state.placeholder_sidebar + "▌")
+                sidebar_placeholder.text_area("",st.session_state.placeholder_sidebar)
     
     def on_message_done(self, message):
         st.session_state.run_id = self.current_run.id
@@ -153,7 +154,6 @@ if "messages" not in st.session_state:
 def update_sidebar():
     st.sidebar.header("Tool Call Arguments")
     st.session_state.placeholder_sidebar = ""
-    # st.sidebar.code(st.session_state.query_output)
 
 if "thread_id" not in st.session_state:
     thread = client.beta.threads.create()
