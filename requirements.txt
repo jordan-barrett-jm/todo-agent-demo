@@ -1,0 +1,9 @@
+aiohttp==3.8.4
+fastapi==0.111.0
+openai==1.30.5
+pydantic==2.7.2
+python-dotenv==1.0.1
+SQLAlchemy==2.0.13
+streamlit==1.33.0
+typing_extensions==4.12.0
+uvicorn==0.30.0
