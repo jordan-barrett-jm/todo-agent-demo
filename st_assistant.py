@@ -8,7 +8,8 @@ from helper_functions import *
 import json
 import asyncio
 import time
-
+import tempfile
+    
 # Load environment variables from .env file
 load_dotenv()
 
@@ -167,6 +168,7 @@ for message in st.session_state.messages:
     with st.chat_message(role):
         st.markdown(message['message'])
 
+chat_image = st.file_uploader("Upload an image", type=['png', 'jpg', 'jpeg'])
 if prompt := st.chat_input("What tasks do I need to get done?"):
     st.session_state.messages.append({
         "role": "User",
@@ -183,11 +185,36 @@ if prompt := st.chat_input("What tasks do I need to get done?"):
         sidebar_output = st.sidebar.empty()
 
         try:
+            if chat_image:
+                 # Get the file name and extension of the uploaded file
+                file_name = chat_image.name
+                file_extension = os.path.splitext(file_name)[1]
+                
+                # Create a temporary file with the same extension
+                with tempfile.NamedTemporaryFile(delete=False, suffix=file_extension) as temp_file:
+                    temp_file.write(chat_image.read())
+                    temp_file_path = temp_file.name
+
+                image_file = client.files.create(file=open(temp_file_path, "rb"), purpose="vision")
+                content = [
+                    {
+                        "type": "text",
+                        "text": prompt
+                    },
+                    {
+                        "type": "image_file",
+                        "image_file": {
+                            "file_id": image_file.id
+                        }
+                    }
+                ]
+            else:
+                content = prompt
             # Add a message to the thread
             message = client.beta.threads.messages.create(
                 thread_id=st.session_state.thread_id,
                 role="user",
-                content=prompt
+                content=content
             )
             response = stream_assistant_response(st.session_state.thread_id, message)
             output = response.value
